@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<!-- Created with https://studio.penguinmod.com/PenguinMod-Packager/ -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- We only include this to explicitly loosen the CSP of various packager environments. It does not provide any security. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:">
+  <title>Level EATEN!</title>
+  <style>
+    body {
+      color: #ffffff;
+      font-family: sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    :root, body.is-fullscreen {
+      background-color: #000000;
+    }
+    [hidden] {
+      display: none !important;
+    }
+    h1 {
+      font-weight: normal;
+    }
+    a {
+      color: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    #app, #loading, #error, #launch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #000000;
+    }
+    #launch {
+      background-color: rgba(0, 0, 0, 0.7);
+      cursor: pointer;
+    }
+    
+    #loading {
+      
+    }
+    .progress-bar-outer {
+      border: 1px solid currentColor;
+      height: 10px;
+      width: 200px;
+      max-width: 200px;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      width: 0;
+      background-color: currentColor;
+    }
+    .loading-text, noscript {
+      font-weight: normal;
+      font-size: 36px;
+      margin: 0 0 16px;
+    }
+    .loading-image {
+      margin: 0 0 16px;
+    }
+    #error-message, #error-stack {
+      font-family: monospace;
+      max-width: 600px;
+      white-space: pre-wrap;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    #error-stack {
+      text-align: left;
+      max-height: 200px;
+      overflow: auto;
+    }
+    .control-button {
+      width: 2rem;
+      height: 2rem;
+      padding: 0.375rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+      border: 0;
+      border-radius: 4px;
+    }
+    .control-button:hover {
+      background: #00c3ff26;
+    }
+    .control-button.active {
+      background: #00c3ff59;
+    }
+    .fullscreen-button {
+      background: white !important;
+    }
+    .standalone-fullscreen-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 0 0 0 4px;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .sc-canvas {
+      cursor: auto;
+    }
+    .sc-monitor-root[data-opcode^="data_"] .sc-monitor-value-color {
+      background-color: #ff8c1a;
+    }
+    .sc-monitor-row-value-outer {
+      background-color: #fc662c;
+    }
+    .sc-monitor-row-value-editing .sc-monitor-row-value-outer {
+      background-color: #e25b27;
+    }
+    
+  </style>
+  <meta name="theme-color" content="#000000">
+  
+</head>
+<body>
+  <div id="app"></div>
+
+  
+
+  <div id="loading" class="screen">
+    <noscript>Enable JavaScript</noscript>
+    <h1 class="loading-text">Loading</h1>
+    <div class="loading-image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAB+CAMAAACgeXx1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAHIUExURQAAADg4ODs7Oy4uLpSUlJubm3h4eAICAiQkJEhISGdnZ3p6eoyMjJGRkZOTk42NjYODg3l5eWNjY0RERCUlJQYGBhYWFlhYWI6OjmRkZAMDAw0NDV5eXpqamoiIiDk5OQEBASsrK319fSgoKD4+PpmZmXR0dD09PYmJiWFhYUVFRTo6Oi8vLzIyMkFBQU5OTm9vb5aWlgkJCW1tbSAgIAUFBS0tLXNzc1VVVZWVlTExMRUVFSEhISkpKR4eHhMTEyYmJg8PDxgYGB0dHQwMDBAQEBkZGSIiIhsbG5eXlyMjIwgICFlZWZCQkGxsbAQEBIWFhUpKSgcHBywsLGlpaT8/P1RUVIGBgYuLi19fXyoqKkdHR3BwcE1NTR8fH0tLSzU1NWZmZjY2Njw8PGJiYhISEhcXFxwcHICAgEBAQIKCghoaGlxcXI+Pj0JCQnZ2dkNDQ39/fwoKCoSEhHJycnd3d5KSkoqKimhoaH5+foaGhlJSUl1dXTc3N3t7e09PT25ublFRUScnJzQ0NAsLC3FxcZiYmHV1dVNTU1BQUDAwMEZGRltbW2pqaoeHh1paWmVlZWtra1dXVzMzM0xMTFZWVhEREWBgYErXgPkAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAYdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCA1LjEuOWxu2j4AAAC2ZVhJZklJKgAIAAAABQAaAQUAAQAAAEoAAAAbAQUAAQAAAFIAAAAoAQMAAQAAAAIAAAAxAQIAEAAAAFoAAABphwQAAQAAAGoAAAAAAAAA8nYBAOgDAADydgEA6AMAAFBhaW50Lk5FVCA1LjEuOQADAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAWgBAABAAAAlAAAAAAAAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAAArIfcnPEIHlAAAB4hJREFUeF7tmulb01gUh4MSWxAUVDaxUDbZigqCjEoFQZSiAi5QHFFEwBGRUbG4MIAbbjPqjM72705yzy9L0xauTXgehue8X7jn3JvQvM1dQWEYhmEYhmEYhmEYhmEYhmEYhmGY/x8Z2+LYjjTjJFONYwfSjBMWJQmLkoRFScKiJGFRkrAoSViUJCxKEhYlCYuShEVJwqIkYVGSsChJWJQkLEoSFiUJi5KERUnCoiTxTpTPn5W9Myd31+68/D179xUgu2XwSlRhUTFuQWSWbN+Pqq2BN6JKDwRwAxtl5UFUbwU8EVUR/zaZVFahwRbAC1HVNbg6gYNosQXwQFRtkm4HWJSNKut9qqtvaAw1HTp8pBkJFmXRUodL1aOtSClK27F2kWJRFj/gyuMnkAD+HVoyXlTwZEc4fKoz9VwYPNkV9p9GoOPrrgr3nEHgoKXbH+7pTXYz39lz4fC+vhaE3uBW1Gn0skg/Eib7i+yizjddqETTiwO1g8jq+LMFHUrrnlxRP3TpMtVcuSo+XWDHsI8SFv0jUdFWHb32I1Kg9/pOo+NfHLvRh+z6ZNSV1SXBTDoG4oieS3oFZW/itibjuPA6Yju3MiEqGJowPjwxOkwVOrcpNTlFP3Xq/Fp+mnqvoPIOtQU/HUFe0H4KaY22w/G/SL17DjXrMYMLPCLhvRmi/L2k/Wn2Pv1soUZ26s2XCqLiXu3msNI6h7Jg9CRa6/zsWI40N6FCOf8AKYtGVK3HBos6i/xDxA6gL4kotYSqTFHx5FZRNzR5ZPa+4AhSFgHDxhgSNjaJKNw+MI84OclEmU+QVJSasDZrQHPlIRJ2mmksSnarTSLqAKWjCFMAUTWP82MLo1RW1Rx0PtvT1ZRFn6BIRIaiRpesw9t5M4KE+nSh/Z7h86544RYQZd49+Cz2nBpuElEYcOsRpkAXtfhLf5sIupfwdMsitETlPtTeS9/ycYSam4wCbXjOQvMwNV+hKHCgW4+mjSlAH6ZKqeXcLTq38LW+eLppRD2n9DjCFLSoi+W2GX4bXfSSIkNUbg/F1YjVPKyotGWGzisRvKag5o2INF5QYkErtlLRpmZwcmiTiMKy/BBCbfUUi4MMtk3Gn03R7D5HnckQVS4i7eHQ+wLGrF9I8RERDFBgfTPBfJEIlGrrLlFS9bWFiW8VhfXYYFEYQTIQao9JCYMJpE0uz2s0UGWhyEBUmfnKvaXEGEJFoWFtUS8OUscspl4seCMyet/zU8laeXwPGyzqHaXNjrCGqM69JY/i5/zXIg9RWHJp3KeEteJ4L+I5vdgviuqSyBOrlPqgLcqppOZ89Ccs5ddlg0XhxK4WYWpR/e8TJnz1V1EDUVbv/UAJ69CPuts7vYh3sTnXBqWmtFpsazSevBz3f99R9AaLyqP0bwhTifJ9StRkjLoQdVsEOocpgbFd4xkl9KKxBU/kqFZbizKxq55eWTk2WJR+RKAxgjCFKF82wngmRSVEmdsQQ9QswjhR16iYBH3a88UQGDywbQPXYYNFfaZ0DKH2WbOICaogUXspcJKGKPy+JIhzj3nnHqbZmEvXZYNF4aFyE/bE5VQhRJ0xl9uZ0djR7OxsrKDTEAX/SaADIl+tufInahynMCnJ+LI2jrEjgnQqnMcsx3BdF2ITuygMHc0f++ATM3oaon6n4nMs02wUiabaQi40Fedq6PsnwKS4PLgrwPHPH4hN7KK+UrlCVOhg7kpDFOpmRD4ldyZLdlNDjRCSLnEpSrlK10WsxyLsomjWzhN5AS5KQ1QTFb+K/FoEe77hOzReNZe4FVWBCysdy2G7KFps0RZEZxX73jRErdJQEZkWFWsDqQMIXeJWVBC7eXUAB93ALorOKvX5mzBO3tIQZRweiPvaOKsfRZ+wOrdOGzVtR+gSt6KU18Z0ULkPGQFOCMQD3RNF8y0IGSe56YjCF6B+tM+zfRMB/YPfUFdCtvQstTSPUt3hWpTyCZdq390hPNz0n1MYIIQozOkrwtTgJewP0xPlwyG92t4FJ73DMe27IlGqGh0X51QaszgC+guxS9yLasPqXPAuJxpdtI7eSFQjgshYUdFn2xFmOqKUkLmgKX5ZvzQRw/RmiNK4+Lb+7wufoUlVDXEucS9KKTU/UyJCVEEOIgdpiTJO6hzYRMWz/gQphweilHnnFssku1c0MAYWB+mJCtr+AGiRSlSx/Q/PbvBClBLMsvU2i8fm9uEbMgCjeXqiFOV6kn8zSiGqzqOO55EoRfnnvlNV4OCytbQKNpgjuMbCJP1MV5Ryzrn3ffpKPy2tyHdsyAL/ltIFHuCRKK3/TX61/u9u98AlOuc1KVzCAVtkrCl4irZnV0RNFQXW4qKREp0ItTeFEogEHZ9wEqbNHysfwsZ+rrSxPmrK+jJiuXaPZ6J0OruWq2fKt/utZ7Th62karl7uiF+XuqC360T18HLojnPT29YXapypflMl+1cFSTwVtZVhUZKwKElYlCQsShIWJQmLkoRFScKiJGFRkrAoSViUJCxKEhYlCYuShEVJwqIkYVGSLDfGcQxphmEYhmEYhmEYhmEYhmEYhmEYhmE8R1H+A5EZlH5VT/LIAAAAAElFTkSuQmCC"></div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="loading-inner"></div></div>
+  </div>
+
+  <div id="error" class="screen" hidden>
+    <h1>Error</h1>
+    <details>
+      <summary id="error-message"></summary>
+      <p id="error-stack"></p>
+    </details>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    const appElement = document.getElementById('app');
+    const launchScreen = document.getElementById('launch');
+    const loadingScreen = document.getElementById('loading');
+    const loadingInner = document.getElementById('loading-inner');
+    const errorScreen = document.getElementById('error');
+    const errorScreenMessage = document.getElementById('error-message');
+    const errorScreenStack = document.getElementById('error-stack');
+
+    const handleError = (error) => {
+      console.error(error);
+      if (!errorScreen.hidden) return;
+      errorScreen.hidden = false;
+      errorScreenMessage.textContent = '' + error;
+      let debug = error && error.stack || 'no stack';
+      debug += '\nUser agent: ' + navigator.userAgent;
+      errorScreenStack.textContent = debug;
+    };
+    const setProgress = (progress) => {
+      if (loadingInner) loadingInner.style.width = progress * 100 + '%';
+    };
+    const interpolate = (a, b, t) => a + t * (b - a);
+
+    try {
+      setProgress(0.1);
+
+      const scaffolding = new Scaffolding.Scaffolding();
+      scaffolding.width = 480;
+      scaffolding.height = 360;
+      scaffolding.resizeMode = "preserve-ratio";
+      scaffolding.editableLists = false;
+      scaffolding.usePackagedRuntime = true;
+      scaffolding.setup();
+      scaffolding.appendTo(appElement);
+
+      const vm = scaffolding.vm;
+      window.scaffolding = scaffolding;
+      window.vm = scaffolding.vm;
+      window.Scratch = {
+        vm,
+        renderer: vm.renderer,
+        audioEngine: vm.runtime.audioEngine,
+        bitmapAdapter: vm.runtime.v2BitmapAdapter,
+        videoProvider: vm.runtime.ioDevices.video.provider
+      };
+
+      vm.runtime.isPackagedProject = true;
+      scaffolding.setUsername("player####".replace(/#/g, () => Math.floor(Math.random() * 10)));
+      scaffolding.setAccentColor("#00c3ff");
+
+      try {
+        scaffolding.addCloudProvider(new Scaffolding.Cloud.WebSocketProvider(["wss://clouddata.turbowarp.org","wss://clouddata.turbowarp.xyz"], "p4-@Level EATEN! - v0.12 (1).sb3"));
+      } catch (error) {
+        console.error(error);
+      }
+
+      const pauseButton = document.createElement('img');
+      pauseButton.className = 'control-button pause-button';
+      pauseButton.draggable = false;
+      let isPaused = false;
+      pauseButton.addEventListener('click', () => {
+        vm.setPaused(!isPaused);
+      });
+      const updatePause = (_isPaused) => {
+        isPaused = _isPaused;
+        if (isPaused) {
+          pauseButton.src = 'data:image/svg+xml,' + encodeURIComponent('<svg width="16" height="16" viewBox="0 0 4.2333332 4.2333335" xmlns="http://www.w3.org/2000/svg"><path d="m3.95163484 2.02835365-1.66643921.9621191-1.66643913.96211911V.10411543l1.66643922.9621191z" fill="#ffae00"/></svg>');
+        } else {
+          pauseButton.src = 'data:image/svg+xml,' + encodeURIComponent('<svg width="16" height="16" viewBox="0 0 4.2333332 4.2333335" xmlns="http://www.w3.org/2000/svg"><g fill="#ffae00"><path d="M.389.19239126h1.2631972v3.8485508H.389zM2.5810001.19239126h1.2631972v3.8485508H2.5810001z"/></g></svg>');
+        }
+      }
+      vm.on('P4_PAUSE', updatePause);
+      updatePause();
+      scaffolding.addControlButton({
+        element: pauseButton,
+        where: 'top-left'
+      });
+
+      if (document.fullscreenEnabled || document.webkitFullscreenEnabled) {
+        let isFullScreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        const fullscreenButton = document.createElement('img');
+        fullscreenButton.draggable = false;
+        fullscreenButton.className = 'control-button fullscreen-button';
+        fullscreenButton.addEventListener('click', () => {
+          if (isFullScreen) {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            }
+          } else {
+            if (document.body.requestFullscreen) {
+              document.body.requestFullscreen();
+            } else if (document.body.webkitRequestFullscreen) {
+              document.body.webkitRequestFullscreen();
+            }
+          }
+        });
+        const otherControlsExist = false;
+        const fillColor = otherControlsExist ? '#575E75' : '#ffffff';
+        const updateFullScreen = () => {
+          isFullScreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+          document.body.classList.toggle('is-fullscreen', isFullScreen);
+          if (isFullScreen) {
+            fullscreenButton.src = 'data:image/svg+xml,' + encodeURIComponent('<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><g fill="' + fillColor + '" fill-rule="evenodd"><path d="M12.662 3.65l.89.891 3.133-2.374a.815.815 0 011.15.165.819.819 0 010 .986L15.467 6.46l.867.871c.25.25.072.664-.269.664L12.388 8A.397.397 0 0112 7.611V3.92c0-.341.418-.514.662-.27M7.338 16.35l-.89-.89-3.133 2.374a.817.817 0 01-1.15-.166.819.819 0 010-.985l2.37-3.143-.87-.871a.387.387 0 01.27-.664L7.612 12a.397.397 0 01.388.389v3.692a.387.387 0 01-.662.27M7.338 3.65l-.89.891-3.133-2.374a.815.815 0 00-1.15.165.819.819 0 000 .986l2.37 3.142-.87.871a.387.387 0 00.27.664L7.612 8A.397.397 0 008 7.611V3.92a.387.387 0 00-.662-.27M12.662 16.35l.89-.89 3.133 2.374a.817.817 0 001.15-.166.819.819 0 000-.985l-2.368-3.143.867-.871a.387.387 0 00-.269-.664L12.388 12a.397.397 0 00-.388.389v3.692c0 .342.418.514.662.27"/></g></svg>');
+          } else {
+            fullscreenButton.src = 'data:image/svg+xml,' + encodeURIComponent('<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><g fill="' + fillColor + '" fill-rule="evenodd"><path d="M16.338 7.35l-.89-.891-3.133 2.374a.815.815 0 01-1.15-.165.819.819 0 010-.986l2.368-3.142-.867-.871a.387.387 0 01.269-.664L16.612 3a.397.397 0 01.388.389V7.08a.387.387 0 01-.662.27M3.662 12.65l.89.89 3.133-2.374a.817.817 0 011.15.166.819.819 0 010 .985l-2.37 3.143.87.871c.248.25.071.664-.27.664L3.388 17A.397.397 0 013 16.611V12.92c0-.342.418-.514.662-.27M3.662 7.35l.89-.891 3.133 2.374a.815.815 0 001.15-.165.819.819 0 000-.986L6.465 4.54l.87-.871a.387.387 0 00-.27-.664L3.388 3A.397.397 0 003 3.389V7.08c0 .341.418.514.662.27M16.338 12.65l-.89.89-3.133-2.374a.817.817 0 00-1.15.166.819.819 0 000 .985l2.368 3.143-.867.871a.387.387 0 00.269.664l3.677.005a.397.397 0 00.388-.389V12.92a.387.387 0 00-.662-.27"/></g></svg>');
+          }
+        };
+        updateFullScreen();
+        document.addEventListener('fullscreenchange', updateFullScreen);
+        document.addEventListener('webkitfullscreenchange', updateFullScreen);
+        if (otherControlsExist) {
+          fullscreenButton.className = 'control-button fullscreen-button';
+          scaffolding.addControlButton({
+            element: fullscreenButton,
+            where: 'top-right'
+          });
+        } else {
+          fullscreenButton.className = 'standalone-fullscreen-button';
+          document.body.appendChild(fullscreenButton);
+        }
+      }
+
+      vm.setTurboMode(false);
+      if (vm.setInterpolation) vm.setInterpolation(false);
+      if (vm.setFramerate) vm.setFramerate(30);
+      if (vm.renderer.setUseHighQualityRender) vm.renderer.setUseHighQualityRender(false);
+      if (vm.setRuntimeOptions) vm.setRuntimeOptions({
+        fencing: true,
+        miscLimits: true,
+        maxClones: 300,
+        dangerousOptimizations: false
+      });
+      if (vm.setCompilerOptions) vm.setCompilerOptions({
+        enabled: true,
+        warpTimer: false
+      });
+      if (vm.renderer.setMaxTextureDimension) vm.renderer.setMaxTextureDimension(2048);
+
+      if (typeof ScaffoldingAddons !== 'undefined') {
+        ScaffoldingAddons.run(scaffolding, {"gamepad":true,"pointerlock":false,"specialCloudBehaviors":false,"unsafeCloudBehaviors":false,"pause":true});
+      }
+
+      scaffolding.setExtensionSecurityManager({
+        getSandboxMode: () => 'unsandboxed',
+        canLoadExtensionFromProject: () => true
+      });
+      for (const extension of []) {
+        vm.extensionManager.loadExtensionURL(extension);
+      }
+
+      vm.runtime.isProjectPermissionManagerDisabled = true;
+      
+    } catch (e) {
+      handleError(e);
+    }
+  </script>
+  
+  
+    <script>
+      const getProjectData = (function() {
+        const storage = scaffolding.storage;
+        storage.onprogress = (total, loaded) => {
+          setProgress(interpolate(0.2, 0.98, loaded / total));
+        };
+        
+        storage.addWebStore(
+          [
+            storage.AssetType.ImageVector,
+            storage.AssetType.ImageBitmap,
+            storage.AssetType.Sound,
+            storage.AssetType.Font
+          ].filter(i => i),
+          (asset) => new URL('./assets/' + asset.assetId + '.' + asset.dataFormat, location).href
+        );
+        return () => new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          resolve(xhr.response);
+        };
+        xhr.onerror = () => {
+          if (location.protocol === 'file:') {
+            reject(new Error('Zip environment must be used from a website, not from a file URL.'));
+          } else {
+            reject(new Error('Request to load project data failed.'));
+          }
+        };
+        xhr.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setProgress(interpolate(0.1, 0.2, e.loaded / e.total));
+          }
+        };
+        xhr.responseType = 'arraybuffer';
+        xhr.open('GET', "./assets/project.json");
+        xhr.send();
+      });
+      })();
+    </script>
+  <script>
+    const run = async () => {
+      const projectData = await getProjectData();
+      await scaffolding.loadProject(projectData);
+      setProgress(1);
+      loadingScreen.hidden = true;
+      if (true) {
+        scaffolding.start();
+      } else {
+        launchScreen.hidden = false;
+        launchScreen.addEventListener('click', () => {
+          launchScreen.hidden = true;
+          scaffolding.start();
+        });
+        launchScreen.focus();
+      }
+    };
+    run().catch(handleError);
+  </script>
+</body>
+</html>
